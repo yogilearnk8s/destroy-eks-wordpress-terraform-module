@@ -19,7 +19,7 @@ provider "kubernetes" {
 terraform {
   backend "s3" {
     bucket = "yogi-tf"
-    key    = "terraform-backend/eks-nodegroup.tf"
+    key    = "terraform-backend/eks-wordpress-cluster.tf"
     region = "ap-south-1"
   }
 }
