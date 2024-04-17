@@ -44,10 +44,10 @@ resource "kubernetes_secret" "wordpress_db_secret" {
     }
     
 }
-/*
+
 resource "kubernetes_persistent_volume" "wp_db_persistent_volume" {
   metadata {
-    name = "mysql-pv-claim"
+    name = "mysql-pv"
     labels = {
        name = "wp-db"
     }
@@ -68,18 +68,18 @@ resource "kubernetes_persistent_volume" "wp_db_persistent_volume" {
 
   }
 }
-*/
 
-//resource "kubernetes_persistent_volume_claim" "wp_db_persistent_volume_claim" {
-//  metadata {
-//    name = "wp-db-presistentclaim"
-//  }
-//  spec {
-//    storage_class_name = "gp2"
-//    access_modes = ["ReadWriteMany"]
-/*    resources {
+
+resource "kubernetes_persistent_volume_claim" "wp_db_persistent_volume_claim" {
+  metadata {
+    name = "wp-db-presistentclaim"
+  }
+  spec {
+    storage_class_name = "gp2"
+    access_modes = ["ReadWriteMany"]
+    resources {
       requests = {
-        storage = "10Gi"
+        storage = "20Gi"
       }
     }
     selector {
@@ -90,7 +90,7 @@ resource "kubernetes_persistent_volume" "wp_db_persistent_volume" {
     volume_name = "${kubernetes_persistent_volume.wp_db_persistent_volume.metadata.0.name}"
   }
 }
-*/
+
 resource "kubernetes_deployment" "wordpress_db" {
   metadata {
     name      = "wp-db-deployment"
