@@ -4,6 +4,19 @@ data "kubernetes_namespace" "wp_namespace" {
   }
 }
 
+data "aws_ebs_volume" "wordpress_volume" {
+  most_recent = true
+
+  filter {
+    name   = "volume-type"
+    values = ["gp3"]
+  }
+
+  filter {
+    name   = "tag:Name"
+    values = ["wordpress-volume"]
+  }
+}
 
 resource "kubernetes_secret" "wordpress_app_secret" {
     metadata {
@@ -25,7 +38,7 @@ resource "kubernetes_config_map" "env_values" {
 
   data = {
     WORDPRESS_DB_HOST = "wordpress-db-host",
-    wordpress-mysql = "wordpress-mysql",
+    WORDPRESS_DB_NAME = "wordpressdb",
     WORDPRESS_DB_USER = "wordpress-db-user",
     wordpress = "wordpress"
   }
@@ -59,6 +72,10 @@ resource "kubernetes_persistent_volume" "wp_persistent_volume" {
         csi {
           driver = "ebs.csi.aws.com"
           volume_handle = "awsElasticBlockStore"
+        }
+         aws_elastic_block_store {
+           volume_id = "data.aws_ebs_volume.wordpress_volume.id"
+
         }
     }
 

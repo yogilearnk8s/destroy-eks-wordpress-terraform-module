@@ -4,6 +4,15 @@ resource "kubernetes_namespace" "wp_namespace" {
   }
 }
 
+
+resource "aws_ebs_volume" "wordpress_volume" {
+  availability_zone = "ap-south-1a"  # Specify the availability zone where the EBS volume will exist
+  size              = 20            # Size of the volume in GiBs
+  tags = {
+    Name = "wordpress-volume"  # Optional: Assign tags to the volume
+  }
+}
+
 resource "kubernetes_secret" "wp_secret" {
   metadata {
     name = "wp-auth"
@@ -27,7 +36,7 @@ resource "kubernetes_config_map" "env_values" {
 
   data = {
     WORDPRESS_DB_HOST = "wordpress-db-host",
-    wordpress-mysql = "wordpress-mysql",
+    WORDPRESS_DB_NAME = "wordpressdb",
     WORDPRESS_DB_USER = "wordpress-db-user",
     wordpress = "wordpress"
   }
@@ -64,6 +73,11 @@ resource "kubernetes_persistent_volume" "wp_db_persistent_volume" {
           driver = "ebs.csi.aws.com"
           volume_handle = "awsElasticBlockStore"
         }
+        aws_elastic_block_store {
+           volume_id = "aws_ebs_volume.wordpress_volume.id"
+
+        }
+
     }
 
   }
@@ -120,23 +134,27 @@ resource "kubernetes_deployment" "wordpress_db" {
             container_port = 3306
             name = "mysql"
           }
+                env {
+               name = "WORDPRESS_DB_NAME"
+              value = "wordpressdb"
+            }
           env {
-           name = "wordpress-db-host"
-           value = "wordpress-mysql"
+           name = "WORDPRESS_DB_USER"
+           value = "wordpress-db-user"
             }
            env {
            name = "wordpress-db-password"
            value_from {
               secret_key_ref {
                 name = kubernetes_secret.wordpress_db_secret.metadata[0].name
-                key = "wordpress-db-password"
+                key = "WORDPRESS_DB_PASSWORD"
               } 
            }
             }
 
            env {
-               name = "wordpress-db-user"
-              value = "wordpress"
+               name = "WORDPRESS_DB_HOST"
+              value = "wordpress-db-host"
             }
 
           volume_mount {
