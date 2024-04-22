@@ -54,11 +54,11 @@ resource "kubernetes_persistent_volume" "wp_db_persistent_volume" {
     
   }
   spec {
-    storage_class_name = "gp2"
+    storage_class_name = "gp3"
     capacity = {
       storage = "20Gi"
     }
-    access_modes = ["ReadWriteMany"]
+    access_modes = ["ReadWriteOnce"]
     persistent_volume_source {
         csi {
           driver = "ebs.csi.aws.com"
