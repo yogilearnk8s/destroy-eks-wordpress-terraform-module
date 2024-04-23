@@ -61,7 +61,7 @@ data "aws_availability_zones" "yogi-az" {
 }
 
 resource "aws_subnet" "public-subnets" {
-  count = 2
+  count = 3
 
   vpc_id            = data.aws_vpc.yogi-vpc.id
   cidr_block = var.public-subnet-cidr1[count.index]
@@ -70,8 +70,8 @@ resource "aws_subnet" "public-subnets" {
   tags = {
     Name = "Public-k8s-subnet"
   }
-    #availability_zone = "${data.aws_availability_zones.yogi-az.names[count.index]}"
-    availability_zone = "ap-south-1a"
+    availability_zone = "${data.aws_availability_zones.yogi-az.names[count.index]}"
+    #availability_zone = "ap-south-1a"
   map_public_ip_on_launch = true
 }
 
@@ -180,7 +180,7 @@ module "nodegroup_creation" {
 source = "./node-group-creation"
 depends_on = [module.eks_cluster_creation]
 }
-
+/*
 //module "app_deployment"{
 //  source = "./eks_nginx_app_deployment"
 //  depends_on = [module.nodegroup_creation]
@@ -195,3 +195,4 @@ module "wordpress_app_deployment"{
   source = "./eks_wordpress_app_deployment"
   depends_on = [module.wordpress_db_deployment]
 }
+*/
